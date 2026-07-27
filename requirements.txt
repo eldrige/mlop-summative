@@ -23,5 +23,5 @@ seaborn==0.13.2
 locust==2.25.0
 
 # ── Utilities ──────────────────────────────────────────────
-requests==2.31.0
+requests==2.33.0
 pydantic==2.7.1
