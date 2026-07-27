@@ -1,0 +1,13 @@
+{
+  "version": "20260727_105155",
+  "trained_at": "2026-07-27T10:51:56",
+  "architecture": "MobileNetV2 transfer learning",
+  "img_size": 224,
+  "classes": [
+    "benign",
+    "malignant"
+  ],
+  "n_train": 439,
+  "n_val": 78,
+  "n_test": 129
+}

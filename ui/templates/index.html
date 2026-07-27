@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CheckMe · Breast Ultrasound Classifier</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◑</span>
+      <div>
+        <h1>CheckMe</h1>
+        <p>Breast Ultrasound · benign vs malignant · MobileNetV2</p>
+      </div>
+    </div>
+    <div class="status-pills">
+      <span class="pill" id="pill-service"><b>Service</b> <em id="svc">…</em></span>
+      <span class="pill" id="pill-uptime"><b>Uptime</b> <em id="uptime">…</em></span>
+      <span class="pill" id="pill-model"><b>Model</b> <em id="modelver">…</em></span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="predict">Predict</button>
+    <button class="tab" data-tab="data">Data & Visualizations</button>
+    <button class="tab" data-tab="retrain">Upload & Retrain</button>
+  </nav>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section id="overview" class="panel active">
+      <h2>Model performance <small>on the held-out test set</small></h2>
+      <div class="metric-grid" id="metric-cards">
+        <div class="metric"><span class="mv" id="m-acc">–</span><span class="ml">Accuracy</span></div>
+        <div class="metric"><span class="mv" id="m-prec">–</span><span class="ml">Precision</span></div>
+        <div class="metric"><span class="mv" id="m-rec">–</span><span class="ml">Recall (sensitivity)</span></div>
+        <div class="metric"><span class="mv" id="m-f1">–</span><span class="ml">F1 score</span></div>
+        <div class="metric"><span class="mv" id="m-auc">–</span><span class="ml">ROC AUC</span></div>
+        <div class="metric"><span class="mv" id="m-n">–</span><span class="ml">Test images</span></div>
+      </div>
+      <div class="two-col">
+        <figure class="card"><figcaption>Confusion matrix</figcaption>
+          <img id="fig-cm" alt="confusion matrix" /></figure>
+        <figure class="card"><figcaption>ROC curve</figcaption>
+          <img id="fig-roc" alt="roc curve" /></figure>
+      </div>
+      <p class="muted" id="trained-at"></p>
+    </section>
+
+    <!-- PREDICT -->
+    <section id="predict" class="panel">
+      <h2>Single prediction</h2>
+      <p class="muted">Upload one breast-ultrasound image; the model returns benign / malignant with probabilities.</p>
+      <div class="two-col">
+        <div class="card dropzone" id="drop-predict">
+          <input type="file" id="predict-file" accept="image/*" hidden />
+          <img id="predict-preview" class="preview" hidden />
+          <p id="predict-hint">Click or drop an image here</p>
+          <button class="btn primary" id="predict-btn" disabled>Classify image</button>
+        </div>
+        <div class="card" id="predict-result" hidden>
+          <div class="verdict" id="verdict">–</div>
+          <div class="bar-wrap"><label>Benign</label><div class="bar"><span id="bar-benign"></span></div><em id="pct-benign"></em></div>
+          <div class="bar-wrap"><label>Malignant</label><div class="bar mal"><span id="bar-malignant"></span></div><em id="pct-malignant"></em></div>
+          <p class="muted">Confidence <b id="confidence"></b> · model <span id="pred-ver"></span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data" class="panel">
+      <h2>Data &amp; feature visualizations</h2>
+      <div class="two-col">
+        <figure class="card"><figcaption>Feature 1 · Class balance (train vs test)</figcaption>
+          <canvas id="chart-dist"></canvas>
+          <p class="muted interp" id="interp-dist"></p></figure>
+        <figure class="card"><figcaption>Feature 2 · Mean pixel intensity by class</figcaption>
+          <canvas id="chart-intensity"></canvas>
+          <p class="muted interp" id="interp-intensity"></p></figure>
+      </div>
+      <figure class="card"><figcaption>Feature 3 · Raw image-size distribution</figcaption>
+        <canvas id="chart-size"></canvas>
+        <p class="muted interp" id="interp-size"></p></figure>
+    </section>
+
+    <!-- RETRAIN -->
+    <section id="retrain" class="panel">
+      <h2>Upload bulk data &amp; retrain</h2>
+      <p class="muted">Upload multiple labelled ultrasound images. They stage for retraining;
+        once <b id="thresh"></b>+ images accumulate a retrain is recommended.</p>
+      <div class="two-col">
+        <div class="card">
+          <h3>1 · Upload labelled images</h3>
+          <label class="field">Label
+            <select id="upload-label">
+              <option value="benign">benign</option>
+              <option value="malignant">malignant</option>
+            </select>
+          </label>
+          <input type="file" id="upload-files" accept="image/*" multiple />
+          <button class="btn" id="upload-btn">Upload to staging</button>
+          <p class="muted" id="upload-msg"></p>
+          <div class="pending">
+            <span>Pending: benign <b id="pend-benign">0</b></span>
+            <span>malignant <b id="pend-malignant">0</b></span>
+            <span>total <b id="pend-total">0</b></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>2 · Trigger retraining</h3>
+          <p class="muted">Merges staged images into the training set, retrains
+            MobileNetV2, and hot-swaps the live model.</p>
+          <button class="btn primary" id="retrain-btn">Retrain now</button>
+          <div class="job" id="job-box" hidden>
+            <div class="spinner" id="job-spin"></div>
+            <div><b id="job-status">–</b><p class="muted" id="job-msg"></p></div>
+          </div>
+          <pre class="job-metrics" id="job-metrics" hidden></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>CheckMe Ltd · MLOps summative · MobileNetV2 on BUSI</footer>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

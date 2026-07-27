@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Dataset (200MB — fetch with scripts/acquire_data.py)
+data/train/
+data/test/
+data/uploads/
+
+# Model version history (the served model IS committed)
+models/versions/
+
+# Load-test raw CSVs (summary lives in the README)
+results/*.csv
+
+# OS / misc
+.DS_Store
+scratchpad/

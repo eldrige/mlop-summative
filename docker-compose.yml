@@ -1,0 +1,38 @@
+# CheckMe BUSI classifier — load-balanced stack for the flood-request demo.
+#
+#   docker compose up --build --scale api=1     # 1 container
+#   docker compose up --build --scale api=3     # 3 containers
+#
+# nginx (port 8080) round-robins across the api replicas. Point Locust at
+# http://localhost:8080 and compare latency across replica counts.
+services:
+  api:
+    build: .
+    environment:
+      - PORT=8000
+      - OMP_NUM_THREADS=1
+    expose:
+      - "8000"
+    # No host port here: nginx is the single entrypoint so scaling works.
+
+  nginx:
+    image: nginx:1.25-alpine
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  # Optional: run Locust headless as part of the stack.
+  #   docker compose --profile load up locust
+  locust:
+    image: locustio/locust:2.25.0
+    profiles: ["load"]
+    volumes:
+      - ./locust:/mnt/locust
+    command: >
+      -f /mnt/locust/locustfile.py --host http://nginx:80
+      --headless -u 50 -r 10 -t 1m --csv /mnt/locust/results
+    depends_on:
+      - nginx

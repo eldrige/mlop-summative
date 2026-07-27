@@ -1,0 +1,25 @@
+{
+  "class_distribution": {
+    "train": {
+      "benign": 350,
+      "malignant": 167
+    },
+    "test": {
+      "benign": 87,
+      "malignant": 42
+    }
+  },
+  "image_size_stats": {
+    "count": 200,
+    "min_w": 315,
+    "max_w": 1028,
+    "min_h": 324,
+    "max_h": 719,
+    "mean_w": 618.44,
+    "mean_h": 496.345
+  },
+  "intensity_by_class": {
+    "benign": 84.91759620531835,
+    "malignant": 79.36685327915603
+  }
+}

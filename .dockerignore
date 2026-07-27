@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+notebook/
+locust/
+tests/
+data/uploads/
+models/versions/
+*.md
+.DS_Store
+.pytest_cache/
+scratchpad/

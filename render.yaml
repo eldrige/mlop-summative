@@ -1,0 +1,19 @@
+# Render Blueprint — one-click deploy of the CheckMe BUSI classifier.
+# In the Render dashboard: New → Blueprint → point at this repo.
+services:
+  - type: web
+    name: checkme-busi-classifier
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # Free & Starter are 512MB RAM — TensorFlow needs ~600MB+ and will OOM.
+    # Standard (2GB) is the realistic minimum. Change here to try a smaller plan.
+    plan: standard
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: OMP_NUM_THREADS
+        value: 1
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: 2
