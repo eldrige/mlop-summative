@@ -5,7 +5,7 @@ tensorflow-cpu==2.15.0 ; sys_platform == "linux"
 tensorflow==2.15.0 ; sys_platform == "darwin"
 numpy==1.26.4
 scikit-learn==1.4.2
-pillow==10.3.0
+pillow==12.3.0
 
 # ── API / serving ──────────────────────────────────────────
 fastapi==0.110.1
