@@ -15,12 +15,12 @@ load-tested service.
 
 ## 🔗 Links
 
-| Item | Link |
-|------|------|
-| 🎥 **Video demo (YouTube)** | _`<add your YouTube link here>`_ |
-| 🌐 **Live app (Render URL)** | _`https://checkme-busi-classifier.onrender.com`_ (deploy to activate) |
-| 📓 **Notebook** | [`notebook/busi_mlops.ipynb`](notebook/busi_mlops.ipynb) |
-| 🧠 **Model file** | [`models/mobilenet_busi.keras`](models/mobilenet_busi.keras) |
+| Item                                | Link                                                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 🎥 **Video demo (Loom)**            | [`https://www.loom.com/share/bdd6f151bffa4d0cac505f0affce6c7f`](https://www.loom.com/share/bdd6f151bffa4d0cac505f0affce6c7f) |
+| 🌐 **Live app (Digital Ocean URL)** | [`http://146.190.157.26/`](http://146.190.157.26/)                                                                           |
+| 📓 **Notebook**                     | [`notebook/busi_mlops.ipynb`](notebook/busi_mlops.ipynb)                                                                     |
+| 🧠 **Model file**                   | [`models/mobilenet_busi.keras`](models/mobilenet_busi.keras)                                                                 |
 
 ---
 
@@ -40,9 +40,9 @@ and a stratified 80/20 split: **517 train / 129 test** images.
 
 ### The four required functionalities
 
-1. **Model prediction** — upload one image, get benign/malignant + probabilities (`/api/predict`, *Predict* tab).
-2. **Visualizations** — three interpreted features on the *Data & Visualizations* tab (class balance, echogenicity, image sizes).
-3. **Upload data** — bulk-upload multiple labelled `.png` scans for retraining (`/api/upload`, *Upload & Retrain* tab).
+1. **Model prediction** — upload one image, get benign/malignant + probabilities (`/api/predict`, _Predict_ tab).
+2. **Visualizations** — three interpreted features on the _Data & Visualizations_ tab (class balance, echogenicity, image sizes).
+3. **Upload data** — bulk-upload multiple labelled `.png` scans for retraining (`/api/upload`, _Upload & Retrain_ tab).
 4. **Trigger retraining** — a button retrains MobileNetV2 on the uploaded data and hot-swaps the live model (`/api/retrain`).
 
 ---
@@ -96,16 +96,16 @@ MLOP-summative/
 
 ## Model performance (held-out test set, n=129)
 
-| Metric | Value |
-|--------|-------|
-| Accuracy | **72.9%** |
-| Precision (malignant) | 56.6% |
+| Metric                           | Value     |
+| -------------------------------- | --------- |
+| Accuracy                         | **72.9%** |
+| Precision (malignant)            | 56.6%     |
 | Recall / sensitivity (malignant) | **71.4%** |
-| F1 (malignant) | 63.2% |
-| ROC-AUC | **0.867** |
+| F1 (malignant)                   | 63.2%     |
+| ROC-AUC                          | **0.867** |
 
 Confusion matrix and ROC curve are in [`reports/`](reports/) and render live on
-the dashboard *Overview* tab. Recall on the malignant class is prioritised (via
+the dashboard _Overview_ tab. Recall on the malignant class is prioritised (via
 class-weighting) — the clinically important axis for a screening aid.
 
 ---
@@ -162,10 +162,10 @@ model, so this is genuine horizontal scaling.
 
 **Test:** 20 concurrent users, spawn 10/s, 30 s, POSTing a real ultrasound PNG.
 
-| Serving instances | Predictions | Failures | Median | p95 | Max | Throughput |
-|-------------------|-------------|----------|--------|-----|-----|------------|
-| **1** | 505 | 0 | 470 ms | 1100 ms | 2147 ms | 17.4 pred/s |
-| **4** | 877 | 0 | **150 ms** | **550 ms** | 12538 ms* | **30.2 pred/s** |
+| Serving instances | Predictions | Failures | Median     | p95        | Max        | Throughput      |
+| ----------------- | ----------- | -------- | ---------- | ---------- | ---------- | --------------- |
+| **1**             | 505         | 0        | 470 ms     | 1100 ms    | 2147 ms    | 17.4 pred/s     |
+| **4**             | 877         | 0        | **150 ms** | **550 ms** | 12538 ms\* | **30.2 pred/s** |
 
 \* the single 12.5 s max is a cold-start outlier on the 4th worker's first
 request (model load); steady-state p95 improved 2×.
@@ -206,33 +206,19 @@ locust -f locust/locustfile.py --host http://localhost:8080   # UI at :8089
 
 ---
 
-## Deploy to Render
-
-1. Push this repo to GitHub.
-2. Render → **New → Blueprint** → select the repo (uses [`render.yaml`](render.yaml)).
-3. Render builds the Docker image and serves it; health-checks hit `/health`.
-4. Use the **Standard** plan (2 GB) — TensorFlow needs ~600 MB+ resident, so the
-   Free/Starter 512 MB tiers will OOM at model load.
-
-The committed model (`models/mobilenet_busi.keras`) and `viz_cache.json` make
-the deployed app fully functional for prediction, monitoring and visualization
-without shipping the 200 MB dataset.
-
----
-
 ## API reference
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | `/` | Dashboard UI |
-| GET | `/health` | Liveness probe |
-| GET | `/api/status` | Uptime, model version, pending uploads, retrain state |
-| GET | `/api/metrics` | Held-out evaluation metrics |
-| GET | `/api/visualizations` | EDA data for charts |
-| POST | `/api/predict` | Classify one uploaded image |
-| POST | `/api/upload` | Stage bulk images for retraining |
-| POST | `/api/retrain` | Trigger a retrain (background) |
-| GET | `/api/retrain/status` | Poll the retrain job |
+| Method | Endpoint              | Purpose                                               |
+| ------ | --------------------- | ----------------------------------------------------- |
+| GET    | `/`                   | Dashboard UI                                          |
+| GET    | `/health`             | Liveness probe                                        |
+| GET    | `/api/status`         | Uptime, model version, pending uploads, retrain state |
+| GET    | `/api/metrics`        | Held-out evaluation metrics                           |
+| GET    | `/api/visualizations` | EDA data for charts                                   |
+| POST   | `/api/predict`        | Classify one uploaded image                           |
+| POST   | `/api/upload`         | Stage bulk images for retraining                      |
+| POST   | `/api/retrain`        | Trigger a retrain (background)                        |
+| GET    | `/api/retrain/status` | Poll the retrain job                                  |
 
 ---
 
